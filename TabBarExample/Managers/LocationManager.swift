@@ -21,10 +21,19 @@ class LocationManager: NSObject {
     
     private var locationManager: CLLocationManager?
     private var isLocationUpdated = false
+    private var currentLocation: CLLocationCoordinate2D? = nil
     
     deinit {
         changeLocationState(state: false)
         locationManager = nil
+    }
+    
+    func requestAddress() {
+        if let coordinate = currentLocation {
+            getAddress(from: coordinate)
+        } else {
+            delegate?.onAddressRetrieved(address: "Aucune adresse trouvée, veuillez réessayer")
+        }
     }
     
     /// Start/stop background location updates
@@ -122,8 +131,8 @@ extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.last {
             print("didUpdateLocations : \(location.coordinate)")
+            currentLocation = location.coordinate
             delegate?.onLocationChanged(location: location.coordinate)
-            getAddress(from: location.coordinate)
         }
     }
     
